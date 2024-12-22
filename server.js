@@ -1,22 +1,29 @@
-const express= require("express")
-const mongoose = require("mongoose")
-const app=express();
-const dotenv=require("dotenv");
-const userRouter=require('./routes/userRoutes')
-const cors=require("cors");
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const userRouter = require("../routes/userRoutes"); // Adjust path due to api folder
+const cors = require("cors");
+
 dotenv.config();
+
+const app = express();
+const DB_NAME = "merndb";
+
 app.use(express.json());
-app.use(cors());
-const DB_NAME="merndb";
-console.log(process.env.MONGODB_URI)
-mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`).then(()=>{
-    console.log("connected successfully");
-    app.listen(process.env.PORT || 8000, (err)=>{
-        if(err) console.log(err);
-        console.log("running successfully at ",process.env.PORT);
-    })
-}).catch((error)=>{
-    console.log("error:",error);
-})
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*', // Replace with your frontend's URL
+    credentials: true,
+}));
+
+mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log("Connected successfully to MongoDB");
+}).catch((error) => {
+    console.log("Error connecting to MongoDB:", error);
+});
+
 app.use(userRouter);
 
+module.exports = app; // Export the app for Vercel
